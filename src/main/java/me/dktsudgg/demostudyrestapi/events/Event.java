@@ -1,10 +1,13 @@
 package me.dktsudgg.demostudyrestapi.events;
 
-import lombok.Builder;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
-@Builder
+// 애노테이션들이 많을 경우에 하나의 애노테이션으로 묶을 수 있는데, 롬복은 그게 불가능해서 이렇게 다 작성
+@Builder @AllArgsConstructor @NoArgsConstructor
+@Getter @Setter
+@EqualsAndHashCode(of = "id") // equals랑 hashCode를 구현할 때 기본적으로는 모든 멤버변수를 다 사용하는데 stackoverflow 발생가능성 존재함. 따라서 id값만으로 구분. 중괄호표현식으로 여러개로 설정할 수 있음
 public class Event {
 
     private Integer id;
