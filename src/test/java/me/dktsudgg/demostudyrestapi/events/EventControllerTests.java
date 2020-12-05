@@ -1,12 +1,12 @@
 package me.dktsudgg.demostudyrestapi.events;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -19,8 +19,15 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+/**
+ * 웹쪽 테스트는 주로 mocking없이 SpringBootTest애노테이션으로 통합테스트를 한다
+ * mocking할게 너무 많아서 테스트코드 짜기가 힘들고 관리가 힘들어서..
+ */
+
+//@WebMvcTest // 이 애노테이션만 추가해서는 레포지토리는 주입을 못받음. 왜냐면 웹용 slicing test라서 웹용 빈들만 생성하고, 레포지토리를 빈으로 등록해주지 않음.. 레포지토리는 mocking하면됨
 @ExtendWith(SpringExtension.class)
-@WebMvcTest // 레포지토리는 주입을 못받음. 왜냐면 웹용 빈들만 생성하고, 레포지토리를 빈으로 등록해주지 않음.. mocking하면됨
+@SpringBootTest // 레포지토리도 mocking 안하고 바로 주입받아 쓸 수 있도록 이 애노테이션 사용
+@AutoConfigureMockMvc
 public class EventControllerTests {
 
     @Autowired
@@ -32,13 +39,13 @@ public class EventControllerTests {
     @Autowired
     ObjectMapper objectMapper;
 
-    @MockBean
-    EventRepository eventRepository;
+//    @MockBean
+//    EventRepository eventRepository;
 
     @Test
     public void createEvent() throws Exception {
-        // Given
         Event event = Event.builder()
+                .id(100)
                 .name("Spring")
                 .description("REST API Development with Spring")
                 .beginEnrollmentDateTime(LocalDateTime.of(2018, 11, 23, 14, 21))
@@ -49,13 +56,11 @@ public class EventControllerTests {
                 .maxPrice(200)
                 .limitOfEnrollment(100)
                 .location("강남역 D2 스타텁 팩토리")
+                .free(true)
+                .offline(false)
+                .eventStatus(EventStatus.PUBLISHED)
                 .build();
-        event.setId(10);
 
-        // when
-        Mockito.when(eventRepository.save(event)).thenReturn(event);
-
-        // Then
         mockMvc.perform(post("/api/events/")
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .accept(MediaTypes.HAL_JSON)
@@ -65,7 +70,11 @@ public class EventControllerTests {
                 .andExpect(status().isCreated())                      // 201
                 .andExpect(jsonPath("id").exists())         // id라는 필드가 응답에 들어있는지 확인
                 .andExpect(header().exists(HttpHeaders.LOCATION))
-                .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaTypes.HAL_JSON_VALUE));
+                .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaTypes.HAL_JSON_VALUE))
+                .andExpect(jsonPath("id").value(Matchers.not(100)))
+                .andExpect(jsonPath("free").value(Matchers.not(true)))
+                .andExpect(jsonPath("eventStatus").value(EventStatus.DRAFT.name()))
+        ;
 
     }
 

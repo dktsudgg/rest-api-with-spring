@@ -42,6 +42,12 @@
             <artifactId>lombok</artifactId>
             <optional>true</optional>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/org.modelmapper/modelmapper -->
+        <dependency>
+            <groupId>org.modelmapper</groupId>
+            <artifactId>modelmapper</artifactId>
+            <version>2.3.9</version>
+        </dependency>
 
         <!-- test 스코프 애들은 이 아래에 작성. (애플리케이션 실행 중에는 사용 안됨. 테스트를 실행할 때만 사용) -->
         <dependency>
