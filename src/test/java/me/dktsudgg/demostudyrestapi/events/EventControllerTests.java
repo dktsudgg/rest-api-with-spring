@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.hateoas.MediaTypes;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
@@ -16,8 +17,7 @@ import java.time.LocalDateTime;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ExtendWith(SpringExtension.class)
 @WebMvcTest // 레포지토리는 주입을 못받음. 왜냐면 웹용 빈들만 생성하고, 레포지토리를 빈으로 등록해주지 않음.. mocking하면됨
@@ -61,9 +61,11 @@ public class EventControllerTests {
                 .accept(MediaTypes.HAL_JSON)
                 .content(objectMapper.writeValueAsString(event))
         )
-                .andDo(print())                                     // 요쳥/응답 내용 출력
-                .andExpect(status().isCreated())                    // 201
-                .andExpect(jsonPath("id").exists());     // id라는 필드가 응답에 들어있는지 확인
+                .andDo(print())                                       // 요쳥/응답 내용 출력
+                .andExpect(status().isCreated())                      // 201
+                .andExpect(jsonPath("id").exists())         // id라는 필드가 응답에 들어있는지 확인
+                .andExpect(header().exists(HttpHeaders.LOCATION))
+                .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaTypes.HAL_JSON_VALUE));
 
     }
 
