@@ -34,7 +34,11 @@ public class EventController {
          * JSR-303으로 데이터 바인딩 검증
          */
         if (errors.hasErrors()) {
-            return ResponseEntity.badRequest().build();
+            /**
+             * body에 넣기 위해서는 Errors가 ObjectMapper의 BeanSerializer를 통해 직렬화가 되지 않기 때문에(javaBean스펙을 준수하지 않아서)
+             * Serializer를 만들어서 ObjectMapper에 등록한 뒤 사용함.. ErrorsSerializer구현..
+             */
+            return ResponseEntity.badRequest().body(errors);//.badRequest().build();
         }
 
         /**
@@ -42,7 +46,7 @@ public class EventController {
          */
         eventValidator.validate(eventDto, errors);
         if (errors.hasErrors()) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().body(errors);//.badRequest().build();
         }
 
         // 직접 dto->class로 매핑작업을 작성해도 되지만, ModelMapper 라이브러리를 사용하여 EventDto -> Event Class로 매핑할 수 있음.

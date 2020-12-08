@@ -146,7 +146,13 @@ public class EventControllerTests {
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .content(this.objectMapper.writeValueAsString(eventDto))
         )
-                .andExpect(status().isBadRequest());
+                .andDo(print())                                         // 요쳥/응답 내용 출력
+                .andExpect(status().isBadRequest())
+//                .andExpect(jsonPath("$[0].field").exists())
+//                .andExpect(jsonPath("$[0].rejectedValue").exists())
+                .andExpect(jsonPath("$[0].objectName").exists())
+                .andExpect(jsonPath("$[0].defaultMessage").exists())
+                .andExpect(jsonPath("$[0].code").exists());
     }
 
 }
