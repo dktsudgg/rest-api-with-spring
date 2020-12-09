@@ -1,9 +1,6 @@
 package me.dktsudgg.demostudyrestapi.events;
 
-import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import org.springframework.hateoas.EntityModel;
-import org.springframework.hateoas.Link;
-import org.springframework.hateoas.RepresentationModel;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
@@ -27,9 +24,9 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 // 이렇게 작성하면 코드 간결..
 public class EventResource extends EntityModel<Event> {
 
-    public EventResource(Event event, Link... links) {
-        super(event, links);
-//        add(new Link("http://localhost:8080/api/events/" + event.getId()));
-        add(linkTo(EventController.class).slash(event.getId()).withSelfRel());
+    public static EntityModel<Event> modelOf(Event event) {
+        EntityModel<Event> eventModel = EntityModel.of(event);
+        eventModel.add(linkTo(EventController.class).slash(event.getId()).withSelfRel());
+        return eventModel;
     }
 }
