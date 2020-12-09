@@ -55,7 +55,11 @@
             <artifactId>spring-boot-starter-validation</artifactId>
             <version>2.4.0</version>
         </dependency>
-
+<!--        <dependency>-->
+<!--            <groupId>org.springframework.hateoas</groupId>-->
+<!--            <artifactId>spring-hateoas</artifactId>-->
+<!--            <version>0.25.0.RELEASE</version>-->
+<!--        </dependency>-->
 
         <!-- test 스코프 애들은 이 아래에 작성. (애플리케이션 실행 중에는 사용 안됨. 테스트를 실행할 때만 사용) -->
         <dependency>
