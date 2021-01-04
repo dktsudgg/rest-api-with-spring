@@ -17,6 +17,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
 
 import java.time.LocalDateTime;
 import java.util.stream.IntStream;
@@ -235,12 +236,14 @@ public class EventControllerTests {
         IntStream.range(0, 30).forEach(this::generateEvent);
 
         // When
-        this.mockMvc.perform(get("/api/events")
-                    .param("page", "1")    // 1이 두번째 페이지
-                    .param("size", "10")
-                    .param("sort", "name,DESC")
-        )
-                .andDo(print())
+        ResultActions perform = this.mockMvc.perform(get("/api/events")
+                .param("page", "1")    // 1이 두번째 페이지
+                .param("size", "10")
+                .param("sort", "name,DESC")
+        );
+
+        // Then
+        perform.andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("page").exists())
                 .andExpect(jsonPath("_embedded.eventList[0]._links.self").exists())
@@ -249,14 +252,39 @@ public class EventControllerTests {
                 .andDo(document("query-events"))
         ;
     }
+    @Test
+    @DisplayName("기존의 이벤트를 하나 조회하기")
+    public void getEvent() throws Exception {
+        // Given
+        Event event = this.generateEvent(100);
 
-    private void generateEvent(int index) {
+        // When & Then
+        this.mockMvc.perform(get("/api/events/{id}", event.getId()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("name").exists())
+                .andExpect(jsonPath("id").exists())
+                .andExpect(jsonPath("_links.self").exists())
+                .andExpect(jsonPath("_links.profile").exists())
+                .andDo(document("get-an-event"))
+        ;
+    }
+
+    @Test
+    @DisplayName("없는 이벤트를 조회했을 때 404 응답받기")
+    public void getEvent404() throws Exception {
+        // When & Then
+        this.mockMvc.perform(get("/api/events/11883"))
+                .andExpect(status().isNotFound())
+        ;
+    }
+
+    private Event generateEvent(int index) {
         Event event = Event.builder()
                 .name("event " + index)
                 .description("test event")
                 .build();
 
-        this.eventRepository.save(event);
+        return this.eventRepository.save(event);
     }
 
 }
