@@ -1,18 +1,19 @@
 package me.dktsudgg.demostudyrestapi.accounts;
 
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
@@ -26,7 +27,6 @@ class AccountServiceTest {
     AccountRepository accountRepository;
 
     @Test
-    @DisplayName("")
     public void findByUsername() {
         // Given
         String password = "kyoujin";
@@ -44,6 +44,21 @@ class AccountServiceTest {
 
         // Then
         assertThat(userDetails.getPassword()).isEqualTo(password);
+    }
+
+    @Test
+    public void findByUsernameFail() {
+        String username = "random@email.com";
+
+//        try {
+//            accountService.loadUserByUsername(username);
+//            fail("supposed to be failed");
+//        } catch (UsernameNotFoundException e) {
+//            assertThat(e.getMessage()).containsSequence(username);
+//        }
+        assertThrows(UsernameNotFoundException.class, () -> {
+            accountService.loadUserByUsername(username);
+        });
     }
 
 }
