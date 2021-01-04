@@ -1,6 +1,7 @@
 package me.dktsudgg.demostudyrestapi.events;
 
 import lombok.*;
+import me.dktsudgg.demostudyrestapi.accounts.Account;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -28,6 +29,8 @@ public class Event {
     private boolean free;
     @Enumerated(EnumType.STRING)
     private EventStatus eventStatus = EventStatus.DRAFT;
+    @ManyToOne  // 이벤트에서만 매니저를 참조할 수 있도록 단방향 매핑 설정
+    private Account manager;
 
     public void update() {
         // Update free

@@ -8,6 +8,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class EventTest {
 
+    // 롬복 동작을 학습하기 위한 테스트 1
     @Test
     public void builder() {
         Event event = Event.builder()
@@ -17,6 +18,7 @@ class EventTest {
         assertThat(event).isNotNull();
     }
 
+    // 롬복 동작을 학습하기 위한 테스트 2
     @Test
     public void javaBean() {
         // Given
