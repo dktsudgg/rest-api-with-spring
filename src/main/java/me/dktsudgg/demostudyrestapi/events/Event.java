@@ -1,7 +1,9 @@
 package me.dktsudgg.demostudyrestapi.events;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.*;
 import me.dktsudgg.demostudyrestapi.accounts.Account;
+import me.dktsudgg.demostudyrestapi.accounts.AccountSerializer;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -30,6 +32,7 @@ public class Event {
     @Enumerated(EnumType.STRING)
     private EventStatus eventStatus = EventStatus.DRAFT;
     @ManyToOne  // 이벤트에서만 매니저를 참조할 수 있도록 단방향 매핑 설정
+    @JsonSerialize(using = AccountSerializer.class) // 이벤트에서 account정보를 가져올 때는 비밀번호 같은 정보 필요없으므로 이 Serializer를 사용하여 필요한 정보만 가져옴..
     private Account manager;
 
     public void update() {
