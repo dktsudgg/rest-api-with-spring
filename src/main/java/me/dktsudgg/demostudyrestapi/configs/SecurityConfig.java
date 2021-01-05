@@ -5,10 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -56,25 +54,26 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     /**
      * 2. 시큐리티는 적용 하되, http에서 거르는 방법
+     * 리소스 서버 설정에서 비슷한 설정을 할 것이기 때문에 주석처리..
      */
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
-//        http.authorizeRequests()
-//                .mvcMatchers("/docs/index.html").anonymous()
-//                .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).anonymous()
-//        ;
-
-        /**
-         * 익명사용자 허용, 폼인증을 사용, 익명사용자에게 허용할 HTTP 메소드를 작성, 나머지는 인증이 필요
-         */
-        http
-            .anonymous()
-                .and()
-            .formLogin()
-                .and()
-            .authorizeRequests()
-                .mvcMatchers(HttpMethod.GET, "/api/**").anonymous()
-                .anyRequest().authenticated();
-    }
+//    @Override
+//    protected void configure(HttpSecurity http) throws Exception {
+////        http.authorizeRequests()
+////                .mvcMatchers("/docs/index.html").anonymous()
+////                .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).anonymous()
+////        ;
+//
+//        /**
+//         * 익명사용자 허용, 폼인증을 사용, 익명사용자에게 허용할 HTTP 메소드를 작성, 나머지는 인증이 필요
+//         */
+//        http
+//            .anonymous()
+//                .and()
+//            .formLogin()
+//                .and()
+//            .authorizeRequests()
+//                .mvcMatchers(HttpMethod.GET, "/api/**").anonymous()
+//                .anyRequest().authenticated();
+//    }
 
 }
