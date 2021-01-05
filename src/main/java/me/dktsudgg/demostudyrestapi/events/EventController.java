@@ -1,5 +1,7 @@
 package me.dktsudgg.demostudyrestapi.events;
 
+import me.dktsudgg.demostudyrestapi.accounts.Account;
+import me.dktsudgg.demostudyrestapi.accounts.CurrentUser;
 import me.dktsudgg.demostudyrestapi.common.ErrorsResource;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
@@ -9,6 +11,7 @@ import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.Errors;
@@ -35,7 +38,9 @@ public class EventController {
     }
 
     @PostMapping
-    public ResponseEntity createEvent(@RequestBody @Valid EventDto eventDto, Errors errors) {  // @Valid 애노테이션은 데이터 바인딩 될 때 값 검증.. 검증 대상 프로퍼티는 해당 클래스에서 애노테이션으로 명세
+    public ResponseEntity createEvent(@RequestBody @Valid EventDto eventDto,
+                                      Errors errors,
+                                      @CurrentUser Account currentUser) {  // @Valid 애노테이션은 데이터 바인딩 될 때 값 검증.. 검증 대상 프로퍼티는 해당 클래스에서 애노테이션으로 명세
         /**
          * JSR-303으로 데이터 바인딩 검증
          */
@@ -55,8 +60,9 @@ public class EventController {
         // ModelMapper는 공용으로 쓸 수 있기 때문에 Application에 빈으로 등록해놓고 사용..
         Event event = modelMapper.map(eventDto, Event.class);
         event.update();
-
+        event.setManager(currentUser);
         Event newEvent = this.eventRepository.save(event);
+
         WebMvcLinkBuilder selfLinkBuilder = linkTo(EventController.class).slash(newEvent.getId());
         URI createdUri = selfLinkBuilder.toUri();
         EntityModel<Event> eventResource = EventResource.modelOf(event);
@@ -67,18 +73,30 @@ public class EventController {
     }
 
     @GetMapping
-    public ResponseEntity queryEvents(Pageable pageable, PagedResourcesAssembler<Event> assembler) {
+    public ResponseEntity queryEvents(
+            Pageable pageable,
+            PagedResourcesAssembler<Event> assembler,
+            @CurrentUser Account currentUser)
+    {
+//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+//        User principal = (User) authentication.getPrincipal();
+
         Page<Event> page = this.eventRepository.findAll(pageable);
         // 두번째 파라메타:: 각각 이벤트를 이벤트 리소스로 변환하여 각각의 이벤트로 가는 링크(self)가 추가되도록 함.
         var pagedResources = assembler.toModel(page, EventResource::modelOf);
 
         pagedResources.add(Link.of("/docs/index.html#resources-events-list").withRel("profile"));   // 프로필 링크 추가
-
+        if (currentUser != null) {
+            pagedResources.add(linkTo(EventController.class).withRel("create-event"));
+        }
         return ResponseEntity.ok(pagedResources);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity getEvent(@PathVariable Integer id) {
+    public ResponseEntity getEvent(@PathVariable Integer id,
+                                   @CurrentUser Account currentUser) {
+//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
         Optional<Event> optionalEvent = this.eventRepository.findById(id);
         if (optionalEvent.isEmpty()) {
             return ResponseEntity.notFound().build();
@@ -87,6 +105,9 @@ public class EventController {
         Event event = optionalEvent.get();
         EntityModel<Event> eventResource = EventResource.modelOf(event);
         eventResource.add(Link.of("/docs/index.html#resources-events-get").withRel("profile"));   // 프로필 링크 추가
+        if (event.getManager().equals(currentUser)) {   // 업데이트 이벤트를 할 수 있는 링크를 매니저일 경우에만 제공해줌..
+            eventResource.add(linkTo(EventController.class).slash(event.getId()).withRel("update-event"));
+        }
 
         return ResponseEntity.ok(eventResource);
     }
@@ -94,7 +115,9 @@ public class EventController {
     @PutMapping("/{id}")
     public ResponseEntity updateEvent(@PathVariable Integer id
             , @RequestBody @Valid EventDto eventDto
-            , Errors errors) {
+            , Errors errors
+            , @CurrentUser Account currentUser
+    ) {
         Optional<Event> optionalEvent = this.eventRepository.findById(id);
         if (optionalEvent.isEmpty()) {
             return ResponseEntity.notFound().build();
@@ -110,6 +133,11 @@ public class EventController {
         }
 
         Event existingEvent = optionalEvent.get();
+        if (!existingEvent.getManager().equals(currentUser)) {
+            // 인증이 안되어 있는 유저가 접근했다면 401, 인증은 됐으나 해당 리소스를 볼 권한이 없으면 403
+            return new ResponseEntity(HttpStatus.FORBIDDEN);
+        }
+
         this.modelMapper.map(eventDto, existingEvent);
         Event savedEvent = this.eventRepository.save(existingEvent);
 
