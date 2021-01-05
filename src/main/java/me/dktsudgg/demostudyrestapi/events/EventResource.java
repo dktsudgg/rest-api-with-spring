@@ -1,6 +1,7 @@
 package me.dktsudgg.demostudyrestapi.events;
 
 import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.Link;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
@@ -23,6 +24,11 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
 // 이렇게 작성하면 코드 간결..
 public class EventResource extends EntityModel<Event> {
+
+    public EventResource(Event event, Link... links) {
+        super(event, links);
+        add(linkTo(EventController.class).slash(event.getId()).withSelfRel());
+    }
 
     public static EntityModel<Event> modelOf(Event event) {
         EntityModel<Event> eventModel = EntityModel.of(event);

@@ -2,7 +2,7 @@ package me.dktsudgg.demostudyrestapi.events;
 
 import me.dktsudgg.demostudyrestapi.accounts.*;
 import me.dktsudgg.demostudyrestapi.common.AppProperties;
-import me.dktsudgg.demostudyrestapi.common.BaseControllerTest;
+import me.dktsudgg.demostudyrestapi.common.BaseTest;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -28,7 +28,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-public class EventControllerTests extends BaseControllerTest {
+public class EventControllerTests extends BaseTest {
 
     @Autowired
     EventRepository eventRepository;

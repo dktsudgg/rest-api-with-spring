@@ -2,7 +2,7 @@ package me.dktsudgg.demostudyrestapi.configs;
 
 import me.dktsudgg.demostudyrestapi.accounts.AccountService;
 import me.dktsudgg.demostudyrestapi.common.AppProperties;
-import me.dktsudgg.demostudyrestapi.common.BaseControllerTest;
+import me.dktsudgg.demostudyrestapi.common.BaseTest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +13,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-public class AuthServerConfigTest extends BaseControllerTest {
+public class AuthServerConfigTest extends BaseTest {
 
     @Autowired
     AccountService accountService;
